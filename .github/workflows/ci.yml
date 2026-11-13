@@ -47,7 +47,7 @@ jobs:
       - name: Build
         run: npm run build
       - name: OpenAPI document is up to date
-        run: npm run openapi -- --check
+        run: npm run openapi:check
       - name: Production dependency audit
         run: npm audit --omit=dev --audit-level=high
 

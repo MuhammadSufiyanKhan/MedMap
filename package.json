@@ -26,6 +26,7 @@
     "test:coverage": "npm run build:shared && npm run test:coverage --workspaces",
     "test:e2e": "npm run test:e2e -w @medmap/web",
     "openapi": "npm run build:shared && npm run openapi -w @medmap/api",
+    "openapi:check": "npm run build:shared && npm run openapi -w @medmap/api -- --check",
     "seed:demo": "npm run build:shared && npm run seed:demo -w @medmap/api",
     "migrate": "npm run build:shared && npm run migrate -w @medmap/api",
     "import:interactions": "npm run build:shared && npm run import:interactions -w @medmap/api --",
