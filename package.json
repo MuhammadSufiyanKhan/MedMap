@@ -17,7 +17,7 @@
     "build:shared": "tsc -b packages/shared/tsconfig.build.json",
     "build": "npm run build:shared && npm run build -w @medmap/api && npm run build -w @medmap/web",
     "dev": "npm run build:shared && concurrently -n shared,api,web -c gray,cyan,magenta \"tsc -b packages/shared/tsconfig.build.json --watch --preserveWatchOutput\" \"npm run dev -w @medmap/api\" \"npm run dev -w @medmap/web\"",
-    "lint": "eslint . --max-warnings 0",
+    "lint": "npm run build:shared && eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --write .",
     "format:check": "prettier --check .",
