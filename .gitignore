@@ -1,0 +1,16 @@
+node_modules/
+dist/
+build/
+coverage/
+.env
+.env.*
+!.env.example
+*.tsbuildinfo
+*.log
+.DS_Store
+.vercel/
+.lighthouseci/
+apps/web/test-results/
+apps/web/playwright-report/
+apps/web/blob-report/
+.eslintcache

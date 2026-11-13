@@ -1,0 +1,77 @@
+{
+  "name": "medmap",
+  "version": "0.1.0",
+  "private": true,
+  "description": "MedMap: a visual medication interaction map. Information tool, not medical advice.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.12.0",
+    "npm": ">=10"
+  },
+  "workspaces": [
+    "packages/*",
+    "apps/*"
+  ],
+  "scripts": {
+    "prepare": "husky || true",
+    "build:shared": "tsc -b packages/shared/tsconfig.build.json",
+    "build": "npm run build:shared && npm run build -w @medmap/api && npm run build -w @medmap/web",
+    "dev": "npm run build:shared && concurrently -n shared,api,web -c gray,cyan,magenta \"tsc -b packages/shared/tsconfig.build.json --watch --preserveWatchOutput\" \"npm run dev -w @medmap/api\" \"npm run dev -w @medmap/web\"",
+    "lint": "npm run build:shared && eslint . --max-warnings 0",
+    "lint:fix": "eslint . --fix",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "typecheck": "npm run build:shared && npm run typecheck --workspaces && tsc -p tsconfig.json --noEmit",
+    "test": "npm run build:shared && npm run test --workspaces",
+    "test:coverage": "npm run build:shared && npm run test:coverage --workspaces",
+    "test:e2e": "npm run test:e2e -w @medmap/web",
+    "openapi": "npm run build:shared && npm run openapi -w @medmap/api",
+    "openapi:check": "npm run build:shared && npm run openapi -w @medmap/api -- --check",
+    "seed:demo": "npm run build:shared && npm run seed:demo -w @medmap/api",
+    "migrate": "npm run build:shared && npm run migrate -w @medmap/api",
+    "import:interactions": "npm run build:shared && npm run import:interactions -w @medmap/api --",
+    "eval:extractor": "npm run build:shared && npm run eval:extractor -w @medmap/api --",
+    "docs:lint": "markdownlint-cli2",
+    "docs:links": "tsx scripts/check-links.ts",
+    "docs:env": "tsx scripts/check-env-table.ts",
+    "docs:check": "npm run docs:lint && npm run docs:links && npm run docs:env",
+    "db:up": "docker compose up -d mongo",
+    "db:down": "docker compose stop mongo"
+  },
+  "devDependencies": {
+    "@commitlint/cli": "^21.2.4",
+    "@commitlint/config-conventional": "^21.2.4",
+    "@commitlint/types": "^21.2.3",
+    "@eslint/js": "^10.0.1",
+    "@types/node": "^22.20.5",
+    "@vitest/coverage-v8": "^5.1.0",
+    "concurrently": "^10.0.7",
+    "eslint": "^10.14.0",
+    "eslint-config-prettier": "^10.1.8",
+    "eslint-import-resolver-typescript": "^4.4.5",
+    "eslint-plugin-boundaries": "^7.4.3",
+    "eslint-plugin-react-hooks": "^7.1.1",
+    "globals": "^17.14.0",
+    "husky": "^9.1.7",
+    "jiti": "^2.7.0",
+    "lint-staged": "^17.6.0",
+    "markdownlint-cli2": "^0.24.1",
+    "prettier": "^3.10.1",
+    "tsx": "^4.23.15",
+    "typescript": "6.0.3",
+    "typescript-eslint": "^8.72.2",
+    "vitest": "^5.1.0"
+  },
+  "lint-staged": {
+    "*.{ts,tsx}": [
+      "eslint --max-warnings 0 --no-warn-ignored",
+      "prettier --check"
+    ],
+    "*.{json,md,yml,yaml,css,html}": "prettier --check"
+  },
+  "config": {
+    "mongodbMemoryServer": {
+      "disablePostinstall": "1"
+    }
+  }
+}
