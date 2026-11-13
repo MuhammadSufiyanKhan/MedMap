@@ -1,0 +1,10 @@
+node_modules
+dist
+coverage
+package-lock.json
+docs/openapi.json
+CHANGELOG.md
+apps/web/playwright-report
+apps/web/test-results
+packages/shared/fixtures/labels
+.release-please-manifest.json

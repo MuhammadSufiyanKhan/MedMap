@@ -1,0 +1,82 @@
+@import '@fontsource-variable/atkinson-hyperlegible-next/wght.css';
+@import 'tailwindcss';
+@config '../../tailwind.config.ts';
+
+@layer base {
+  html {
+    font-size: 100%;
+    -webkit-text-size-adjust: 100%;
+    color-scheme: light dark;
+  }
+
+  /* Large-text mode: every rem-based size grows together. */
+  html[data-text='large'] {
+    font-size: 120%;
+  }
+
+  html[data-theme='dark'] {
+    color-scheme: dark;
+  }
+
+  html[data-theme='light'],
+  html[data-theme='contrast'] {
+    color-scheme: light;
+  }
+
+  body {
+    @apply bg-surface font-sans text-base text-text antialiased;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  h1,
+  h2,
+  h3 {
+    text-wrap: balance;
+  }
+
+  p,
+  li {
+    text-wrap: pretty;
+  }
+
+  :focus-visible {
+    outline: 3px solid var(--mm-focus);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
+  }
+}
+
+@layer utilities {
+  /* Hatched fill for medicines that could not be checked. Pattern, not colour, carries it. */
+  .hatched {
+    background-image: repeating-linear-gradient(
+      135deg,
+      transparent 0,
+      transparent 5px,
+      color-mix(in srgb, var(--mm-unchecked) 28%, transparent) 5px,
+      color-mix(in srgb, var(--mm-unchecked) 28%, transparent) 7px
+    );
+  }
+}
+
+@media print {
+  body {
+    background: #fff;
+    color: #000;
+  }
+
+  .no-print {
+    display: none !important;
+  }
+}
