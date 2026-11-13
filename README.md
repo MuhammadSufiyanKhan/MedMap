@@ -41,6 +41,10 @@ Built so far:
   errors, rate limiting, security headers, health endpoints, OpenAPI generation.
 - Shared zod schemas for every request and response.
 - Design tokens (light, dark, high contrast) and the first UI primitive.
+- Accounts: register, sign in, refresh-token rotation with reuse detection, sign out,
+  email verification, password reset, lockout after repeated failures.
+- Profiles with optimistic concurrency (ETag and If-Match) and idempotent creation.
+- Caregiver sharing through the API: invites, roles (owner, caregiver, viewer), audit log.
 
 ## Tech stack
 
@@ -184,7 +188,7 @@ scripts/      repository scripts (docs checks)
 
 The API is versioned under `/api/v1`. Errors use `application/problem+json`. In development
 the interactive docs are at <http://localhost:4000/api/docs>; the generated document is
-[docs/openapi.json](docs/openapi.json).
+[docs/openapi.json](docs/openapi.json). [docs/API.md](docs/API.md) has curl examples.
 
 ## Testing and quality gates
 
@@ -212,7 +216,7 @@ No real interaction dataset is bundled. See [docs/DATA_SOURCES.md](docs/DATA_SOU
 
 ## Roadmap
 
-Planned, not built yet: accounts and profiles (M1), medicines and name lookup (M2),
+Planned, not built yet: medicines and name lookup (M2),
 interaction engine and demo dataset (M3), results list and graph (M4), label photos (M5),
 caregiver sharing, export and delete (M6), hardening (M7), deployment (M8).
 After v1: dose reminders, loose-pill identification, EHR integration, native apps.

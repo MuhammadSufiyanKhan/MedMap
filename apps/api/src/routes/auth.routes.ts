@@ -1,0 +1,113 @@
+import {
+  acceptedResponseSchema,
+  authResponseSchema,
+  loginRequestSchema,
+  passwordResetConfirmSchema,
+  passwordResetRequestSchema,
+  registerRequestSchema,
+  tokenConfirmRequestSchema,
+  userSchema,
+} from '@medmap/shared';
+import type { AuthController } from '../controllers/auth.controller.js';
+import { defineRoute } from '../utils/http.js';
+import type { AnyRouteSpec } from '../utils/http.js';
+
+const TAG = 'Auth';
+
+export function authRoutes(controller: AuthController): AnyRouteSpec[] {
+  return [
+    defineRoute({
+      method: 'post',
+      path: '/auth/register',
+      summary: 'Create an account and start a session',
+      tag: TAG,
+      auth: 'public',
+      rateLimit: 'auth',
+      body: registerRequestSchema,
+      responses: { 201: { description: 'Account created', schema: authResponseSchema } },
+      handler: controller.register,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/login',
+      summary: 'Sign in',
+      tag: TAG,
+      auth: 'public',
+      rateLimit: 'auth',
+      body: loginRequestSchema,
+      responses: { 200: { description: 'Signed in', schema: authResponseSchema } },
+      handler: controller.login,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/refresh',
+      summary: 'Rotate the refresh cookie and get a new access token',
+      tag: TAG,
+      auth: 'public',
+      csrf: true,
+      rateLimit: 'auth',
+      responses: { 200: { description: 'Session refreshed', schema: authResponseSchema } },
+      handler: controller.refresh,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/logout',
+      summary: 'End the session',
+      tag: TAG,
+      auth: 'public',
+      csrf: true,
+      responses: { 204: { description: 'Signed out' } },
+      handler: controller.logout,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/email-verifications',
+      summary: 'Send a new email confirmation link',
+      tag: TAG,
+      rateLimit: 'auth',
+      responses: { 202: { description: 'Accepted', schema: acceptedResponseSchema } },
+      handler: controller.resendVerification,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/email-verifications/confirm',
+      summary: 'Confirm an email address with the emailed token',
+      tag: TAG,
+      auth: 'public',
+      rateLimit: 'auth',
+      body: tokenConfirmRequestSchema,
+      responses: { 204: { description: 'Email confirmed' } },
+      handler: controller.confirmVerification,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/password-resets',
+      summary: 'Ask for a password reset link',
+      tag: TAG,
+      auth: 'public',
+      rateLimit: 'auth',
+      body: passwordResetRequestSchema,
+      responses: { 202: { description: 'Accepted', schema: acceptedResponseSchema } },
+      handler: controller.requestPasswordReset,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/auth/password-resets/confirm',
+      summary: 'Set a new password with the emailed token',
+      tag: TAG,
+      auth: 'public',
+      rateLimit: 'auth',
+      body: passwordResetConfirmSchema,
+      responses: { 204: { description: 'Password changed' } },
+      handler: controller.confirmPasswordReset,
+    }),
+    defineRoute({
+      method: 'get',
+      path: '/me',
+      summary: 'The signed-in user',
+      tag: 'Account',
+      responses: { 200: { description: 'Current user', schema: userSchema } },
+      handler: controller.me,
+    }),
+  ];
+}

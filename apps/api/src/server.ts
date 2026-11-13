@@ -1,10 +1,8 @@
-import { buildApp } from './app.js';
 import { ConfigError, loadConfig } from './config/env.js';
-import { connectDatabase, disconnectDatabase, pingDatabase } from './repositories/db.js';
-import { UnauthorizedError } from './utils/errors.js';
+import { createContainer } from './container.js';
+import { connectDatabase, disconnectDatabase } from './repositories/db.js';
 import { createLogger } from './utils/logger.js';
 import { installGracefulShutdown } from './utils/shutdown.js';
-import { readVersion } from './utils/version.js';
 
 async function main(): Promise<void> {
   const config = loadConfig();
@@ -12,24 +10,7 @@ async function main(): Promise<void> {
 
   await connectDatabase(config.mongoUri, { autoIndex: !config.isProduction });
 
-  const app = buildApp({
-    config,
-    logger,
-    routes: [],
-    verifyAccessToken: () => {
-      throw new UnauthorizedError();
-    },
-    idempotency: {
-      begin: () => Promise.resolve(null),
-      complete: () => Promise.resolve(),
-      abandon: () => Promise.resolve(),
-    },
-    multipart: (_req, _res, next) => {
-      next();
-    },
-    pingDatabase,
-    version: readVersion(),
-  });
+  const { app } = createContainer(config, logger);
 
   const server = app.listen(config.port, () => {
     logger.info({ port: config.port, env: config.nodeEnv }, 'api listening');
