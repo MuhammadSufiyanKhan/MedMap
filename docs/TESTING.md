@@ -2,14 +2,16 @@
 
 ## Kinds of test and how to run them
 
-| Kind                | Where                        | Command                      |
-| ------------------- | ---------------------------- | ---------------------------- |
-| Shared schemas      | `packages/shared/tests`      | `npm test -w @medmap/shared` |
-| API unit            | `apps/api/tests/unit`        | `npm test -w @medmap/api`    |
-| API integration     | `apps/api/tests/integration` | `npm test -w @medmap/api`    |
-| Web unit, component | `apps/web/tests`             | `npm test -w @medmap/web`    |
-| Everything          |                              | `npm test`                   |
-| With coverage gates |                              | `npm run test:coverage`      |
+| Kind                 | Where                            | Command                          |
+| -------------------- | -------------------------------- | -------------------------------- |
+| Shared schemas       | `packages/shared/tests`          | `npm test -w @medmap/shared`     |
+| API unit             | `apps/api/tests/unit`            | `npm test -w @medmap/api`        |
+| API integration      | `apps/api/tests/integration`     | `npm test -w @medmap/api`        |
+| Web unit, component  | `apps/web/tests`                 | `npm test -w @medmap/web`        |
+| Browser (Playwright) | `apps/web/e2e`                   | `npm run test:e2e`               |
+| Lighthouse budgets   | `apps/web/scripts/lighthouse.ts` | `bash scripts/run-lighthouse.sh` |
+| Everything           |                                  | `npm test`                       |
+| With coverage gates  |                                  | `npm run test:coverage`          |
 
 Coverage gates: 90% on `apps/api/src/engine` and `apps/web/src/domain`, 80% on API services.
 
@@ -55,3 +57,23 @@ Nothing in the test suite calls the network.
 | Dataset named on every result        | `interaction-checks.test.ts`                                         |
 | Production refuses demo data         | `interaction-checks.test.ts` starts the real server process          |
 | Other users' profiles return no data | `authorization.test.ts`, generated from the route table              |
+
+## Browser tests
+
+`npm run test:e2e` builds nothing itself: run `npm run build` first. Playwright then starts
+the API on port 4100 (database `medmap_e2e`, demo dataset, mock label extractor, high rate
+limits) and `vite preview` on port 4173.
+
+- `main-flow.spec.ts`: the user journeys.
+- `responsive.spec.ts`: screenshots of every main screen at 360, 768, 1024 and 1440 px in
+  `apps/web/e2e/screenshots/`; each fails on horizontal overflow.
+- `motion.spec.ts`: reduced motion shows everything at once; with motion, scrolling,
+  resizing and navigating leave no hidden content, stale pins or console errors.
+- `a11y.spec.ts`: axe (WCAG 2.2 AA tags) on every main screen in light, dark and
+  high-contrast themes, plus keyboard checks.
+
+Environment variables: `PW_CHROMIUM_PATH` uses an already-installed Chromium;
+`E2E_BASE_URL` points the suite at a deployed site instead of starting servers.
+
+Component tests use React Testing Library with MSW handlers for the API and axe-core for
+structure checks (colour contrast is checked in the browser tests).

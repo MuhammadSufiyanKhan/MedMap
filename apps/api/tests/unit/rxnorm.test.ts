@@ -140,6 +140,18 @@ describe('CompositeNormalizer', () => {
     expect((await composite.resolve('1191'))?.name).toBe('aspirin');
   });
 
+  it('keeps results from working adapters when another one is down', async () => {
+    const down: FetchLike = () => Promise.reject(new Error('offline'));
+    const composite = new CompositeNormalizer([
+      new DemoNormalizer(),
+      new RxNormNormalizer(BASE, down),
+    ]);
+    expect((await composite.search('Demolol')).map((c) => c.rxcui)).toEqual(['DEMO-0001']);
+    expect((await composite.resolve('DEMO-0001'))?.name).toBe('Demolol');
+    await expect(composite.search('aspirin')).rejects.toBeInstanceOf(ServiceUnavailableError);
+    await expect(composite.resolve('1191')).rejects.toBeInstanceOf(ServiceUnavailableError);
+  });
+
   it('answers empty with no adapters', async () => {
     const none = new CompositeNormalizer([]);
     expect(none.name).toBe('none');

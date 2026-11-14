@@ -125,3 +125,30 @@ Short architecture decision records. Newest last.
 - **Alternatives:** fuzzy matching; keeping names as keys.
 - **Why:** a wrong match would attach an interaction to the wrong medicine. Skipped rows
   are reported so the owner can see the coverage lost.
+
+## ADR-0017: Lighthouse through its Node API, not Lighthouse CI
+
+- **Decision:** `apps/web/scripts/lighthouse.ts` drives Lighthouse directly, signs in
+  through the API and asserts the budgets for the landing and results pages.
+- **Alternatives:** `@lhci/cli` with a Puppeteer login script.
+- **Why:** the results page needs a session and a profile id that only exists at run time.
+  LHCI needs a JavaScript login script and a static URL list; a TypeScript script is
+  simpler and keeps the repository TypeScript-only.
+
+## ADR-0018: GSAP loads with the page chunks that animate
+
+- **Decision:** animation hooks import GSAP statically and live in lazily loaded page and
+  layout chunks. The entry bundle contains no GSAP and no React Flow; React Flow loads
+  when the Graph tab is opened.
+- **Alternatives:** dynamic `import()` of GSAP inside each hook.
+- **Why:** the brief asks for the `useGSAP` hook, which needs a static import. Both
+  layouts use the route transition, so GSAP is part of every routed page after the first
+  paint, while React Flow stays out until needed. Lighthouse performance is 99 on both
+  measured pages.
+
+## ADR-0019: the sharing screens ship with M4
+
+- **Decision:** the sharing page and invite acceptance page are part of the M4 web
+  milestone; M6 adds account export and deletion.
+- **Alternatives:** hold the sharing screens back until M6.
+- **Why:** the API has existed since M1 and the profile page links to sharing.

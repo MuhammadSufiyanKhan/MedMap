@@ -11,24 +11,29 @@ A new session can resume from this file and `docs/PLAN.md` alone.
 | M2  | not started |                                                               |
 | M3  | not started |                                                               |
 | M4  | in progress |                                                               |
-| M5  | not started |                                                               |
+| M5  | in progress |                                                               |
 | M6  | not started |                                                               |
 | M7  | not started |                                                               |
 | M8  | not started |                                                               |
 
 ## Current state
 
-- The whole API for M1 to M3 exists and is tested (150 API tests).
-- The web app is still the M0 placeholder shell. M4 builds every screen.
+- API for M1 to M3 and the whole web app (M4) exist and are tested: 150 API tests, 70 web
+  unit and component tests, 25 Playwright tests, Lighthouse budgets met.
+- Not built yet: label extraction (API and photo tab), account export and delete, Docker
+  images for api and web, deployment workflows.
 
 ## Next steps
 
-1. M4: web services layer (typed API client with refresh), application hooks, UI
-   primitives, all pages, results list and graph, landing page with motion, print page,
-   component tests, Playwright tests.
-2. M5: label extraction endpoint and adapters, upload hardening, evaluation script.
-3. M6: account export and delete endpoints; sharing and settings screens.
-4. M7 and M8 as in `docs/PLAN.md`.
+1. M5: `LabelExtractor` port with mock, Ollama and hosted adapters; upload middleware
+   (memory only, 5 MB, 3 files, magic bytes, EXIF strip with sharp); per-user daily cap;
+   `POST /profiles/:profileId/label-extractions`; photo tab with consent and the
+   confirm-and-edit queue (reuse `MedicineForm`); synthetic label fixtures and the
+   evaluation script; second Playwright flow.
+2. M6: `GET /me/export`, `DELETE /me`; wire `features/AccountData.tsx`; extend the main
+   Playwright flow with export and delete.
+3. M7: Dockerfiles, full compose, security review, final docs pass.
+4. M8: deployment workflows, `vercel.json`, `render.yaml`, secrets script, setup checklist.
 
 ## Lessons for later sessions
 
@@ -41,6 +46,10 @@ A new session can resume from this file and `docs/PLAN.md` alone.
 - The secret scanner flags high-entropy strings next to the word "key". Use low-entropy
   dummy values in tests (for example `aaaa-aaaa-0001`). A gitleaks binary can be downloaded
   from the GitHub release page to scan locally.
+- Local browser runs: `PW_CHROMIUM_PATH=/opt/pw-browsers/chromium npm run test:e2e` after
+  `npm run build`; Lighthouse: `CHROME_PATH=/opt/pw-browsers/chromium bash scripts/run-lighthouse.sh`.
+- The dev API (`.env`) has real rate limits (20 auth requests per 15 minutes); browser
+  suites must use the Playwright-managed servers, which raise them.
 - After a session restart Docker is down: start `dockerd` and the `mongo:8` container again.
 
 ## Environment notes for cloud sessions

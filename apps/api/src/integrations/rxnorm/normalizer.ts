@@ -29,26 +29,46 @@ export class CompositeNormalizer implements DrugNormalizer {
     return this.normalizers.map((normalizer) => normalizer.name).join(' + ') || 'none';
   }
 
+  /**
+   * Merges candidates from every adapter. If one adapter is down, results from the others
+   * are still returned; the failure is rethrown only when nothing at all was found.
+   */
   public async search(term: string): Promise<DrugCandidate[]> {
     const seen = new Set<string>();
     const merged: DrugCandidate[] = [];
+    let failure: Error | undefined;
     for (const normalizer of this.normalizers) {
-      for (const candidate of await normalizer.search(term)) {
-        if (!seen.has(candidate.rxcui)) {
-          seen.add(candidate.rxcui);
-          merged.push(candidate);
+      try {
+        for (const candidate of await normalizer.search(term)) {
+          if (!seen.has(candidate.rxcui)) {
+            seen.add(candidate.rxcui);
+            merged.push(candidate);
+          }
         }
+      } catch (error) {
+        failure = error instanceof Error ? error : new Error('name lookup failed');
       }
+    }
+    if (merged.length === 0 && failure !== undefined) {
+      throw failure;
     }
     return merged;
   }
 
   public async resolve(rxcui: string): Promise<ResolvedConcept | null> {
+    let failure: Error | undefined;
     for (const normalizer of this.normalizers) {
-      const concept = await normalizer.resolve(rxcui);
-      if (concept !== null) {
-        return concept;
+      try {
+        const concept = await normalizer.resolve(rxcui);
+        if (concept !== null) {
+          return concept;
+        }
+      } catch (error) {
+        failure = error instanceof Error ? error : new Error('name lookup failed');
       }
+    }
+    if (failure !== undefined) {
+      throw failure;
     }
     return null;
   }

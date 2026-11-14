@@ -9,7 +9,11 @@ A map of your medicines: see which combinations have a known interaction to ask 
 
 ## Screenshots
 
-Screenshots will be added when the results screens are built (milestone M4).
+Taken by the Playwright suite from the demo dataset (invented medicines).
+
+| Landing page                                          | Results: graph                                                               | Results: list on a phone                                           |
+| ----------------------------------------------------- | ---------------------------------------------------------------------------- | ------------------------------------------------------------------ |
+| ![Landing page](docs/screenshots/landing-desktop.png) | ![Graph of flagged combinations](docs/screenshots/results-graph-desktop.png) | ![Ranked list on a phone](docs/screenshots/results-list-phone.png) |
 
 ## Safety and limits
 
@@ -51,6 +55,11 @@ Built so far:
   the active dataset. Results are ranked by severity; medicines that could not be checked
   are listed with the reason.
 - Dataset tooling: demo seed, CSV import with a licence gate, and a production release gate.
+- Web app: landing page, sign-in flows, profiles, add-medicine flow with a review step,
+  results as a ranked list, a graph and a table, a print page for the pharmacist, sharing
+  and settings (themes, large text).
+- Results never rely on colour: each severity has a line style, an icon and a text label.
+- Motion with GSAP and ScrollTrigger that switches off under `prefers-reduced-motion`.
 
 ## Tech stack
 
@@ -208,7 +217,10 @@ the interactive docs are at <http://localhost:4000/api/docs>; the generated docu
 
 CI runs lint, formatting, typecheck, unit and integration tests with coverage thresholds,
 build, an OpenAPI drift check, `npm audit` for production dependencies, docs checks and a
-secret scan. All must be green before a merge. [docs/TESTING.md](docs/TESTING.md) explains
+secret scan, plus a browser job: Playwright flows, screenshots at 360, 768, 1024 and
+1440 px that fail on horizontal overflow, motion and reduced-motion checks, axe, and
+Lighthouse budgets (performance 90, accessibility 95, best practices 95) on the landing and
+results pages. All must be green before a merge. [docs/TESTING.md](docs/TESTING.md) explains
 each kind of test.
 
 ## Deployment
@@ -231,6 +243,5 @@ No real interaction dataset is bundled. See [docs/DATA_SOURCES.md](docs/DATA_SOU
 
 ## Roadmap
 
-Planned, not built yet: the web interface with the results list and graph (M4), label photos (M5),
-caregiver sharing, export and delete (M6), hardening (M7), deployment (M8).
+Planned, not built yet: label photos (M5), account export and delete (M6), hardening (M7), deployment (M8).
 After v1: dose reminders, loose-pill identification, EHR integration, native apps.
