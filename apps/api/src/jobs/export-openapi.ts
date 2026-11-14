@@ -1,8 +1,10 @@
 import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
 import { dirname, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { ROUTE_TABLE } from '../routes/index.js';
+import { loadConfig } from '../config/env.js';
+import { createContainer } from '../container.js';
 import { buildOpenApiDocument } from '../utils/openapi.js';
+import { createLogger } from '../utils/logger.js';
 import { readVersion } from '../utils/version.js';
 
 /**
@@ -10,7 +12,16 @@ import { readVersion } from '../utils/version.js';
  * committed file is out of date; CI uses that to stop the document drifting from the code.
  */
 const target = resolve(dirname(fileURLToPath(import.meta.url)), '../../../../docs/openapi.json');
-const next = `${JSON.stringify(buildOpenApiDocument(ROUTE_TABLE, readVersion()), null, 2)}\n`;
+
+// The route table needs a container, but generating the document touches no database or
+// network, so a fixed placeholder configuration is enough.
+const config = loadConfig({
+  NODE_ENV: 'test',
+  MONGODB_URI: 'mongodb://localhost/unused',
+  JWT_ACCESS_SECRET: 'openapi-export-placeholder-secret-0000',
+});
+const { routes } = createContainer(config, createLogger({ level: 'silent', pretty: false }));
+const next = `${JSON.stringify(buildOpenApiDocument(routes, readVersion()), null, 2)}\n`;
 
 if (process.argv.includes('--check')) {
   let current = '';

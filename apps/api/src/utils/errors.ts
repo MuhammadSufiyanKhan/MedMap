@@ -29,6 +29,12 @@ export class AppError extends Error {
     this.fieldErrors = options.fieldErrors;
     this.headers = options.headers ?? {};
   }
+
+  /** Attaches the underlying error for server logs. It is never sent to the client. */
+  public withCause(cause: unknown): this {
+    this.cause = cause;
+    return this;
+  }
 }
 
 export class BadRequestError extends AppError {

@@ -18,14 +18,26 @@ A new session can resume from this file and `docs/PLAN.md` alone.
 
 ## Current state
 
-- Models and M1 repositories exist. The auth, access, audit and idempotency services are
-  being written next, then controllers, routes and integration tests.
+- M1 is merged or in review: auth, profiles, sharing endpoints, audit log, idempotency.
+- M2 and M3 code is being written together: normaliser adapters, medicines, dataset import,
+  the interaction engine.
 
 ## Next steps
 
-1. Finish M1: composition root (`container.ts`), auth and profile controllers and routes,
-   sharing endpoints, integration tests including authorisation for every profile route.
-2. M2 onwards as in `docs/PLAN.md`.
+1. M2: `NormalizationService`, `MedicationService`, controllers, routes, tests with
+   recorded RxNorm fixtures.
+2. M3: dataset service and jobs (`seed:demo`, `import:interactions`, `migrate`), demo guard
+   at boot, interaction-check endpoints, engine tests.
+3. M4 onwards as in `docs/PLAN.md`.
+
+## Lessons for later sessions
+
+- Before pushing, run the exact CI steps from a fresh clone
+  (`git clone . /tmp/x && cd /tmp/x && npm ci && npm run lint && npm run test:coverage`).
+- Do not fetch CI job logs for the quality job with full content: the MongoDB service
+  container floods the tail. List the workflow jobs to see which step failed, then
+  reproduce locally.
+- `git stash -u` drops empty directories. Run `mkdir -p` before writing into a new folder.
 
 ## Environment notes for cloud sessions
 
