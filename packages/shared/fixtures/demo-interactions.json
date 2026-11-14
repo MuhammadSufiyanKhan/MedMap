@@ -1,0 +1,81 @@
+{
+  "_comment": "FAKE DATA. Invented pairs between invented medicines, for tests and demos only.",
+  "name": "MedMap demo set",
+  "version": "1.0.0",
+  "kind": "demo",
+  "licenceStatus": "not-applicable",
+  "pairs": [
+    {
+      "ingredientA": "DEMO-0001",
+      "nameA": "Demolol",
+      "ingredientB": "DEMO-0002",
+      "nameB": "Samplifen",
+      "severity": "serious",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-001"
+    },
+    {
+      "ingredientA": "DEMO-0001",
+      "nameA": "Demolol",
+      "ingredientB": "DEMO-0004",
+      "nameB": "Mockstatin",
+      "severity": "moderate",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-002"
+    },
+    {
+      "ingredientA": "DEMO-0003",
+      "nameA": "Testazole",
+      "ingredientB": "DEMO-0005",
+      "nameB": "Fakeoxetine",
+      "severity": "moderate",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-003"
+    },
+    {
+      "ingredientA": "DEMO-0002",
+      "nameA": "Samplifen",
+      "ingredientB": "DEMO-0006",
+      "nameB": "Placebex",
+      "severity": "minor",
+      "mechanism": null,
+      "sourceRef": "demo:pair-004"
+    },
+    {
+      "ingredientA": "DEMO-0005",
+      "nameA": "Fakeoxetine",
+      "ingredientB": "DEMO-0009",
+      "nameB": "Sample Wort",
+      "severity": "serious",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-005"
+    },
+    {
+      "ingredientA": "DEMO-0007",
+      "nameA": "Examplamine",
+      "ingredientB": "DEMO-0008",
+      "nameB": "Trialcillin",
+      "severity": "minor",
+      "mechanism": null,
+      "sourceRef": "demo:pair-006"
+    },
+    {
+      "ingredientA": "DEMO-0004",
+      "nameA": "Mockstatin",
+      "ingredientB": "DEMO-0010",
+      "nameB": "Vitamin Demo",
+      "severity": "minor",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-007"
+    },
+    {
+      "ingredientA": "DEMO-0003",
+      "nameA": "Testazole",
+      "ingredientB": "DEMO-0004",
+      "nameB": "Mockstatin",
+      "severity": "serious",
+      "mechanism": "Made-up example for demos. Not a real interaction.",
+      "sourceRef": "demo:pair-008"
+    }
+  ]
+}

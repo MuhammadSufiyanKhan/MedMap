@@ -10,7 +10,21 @@ async function main(): Promise<void> {
 
   await connectDatabase(config.mongoUri, { autoIndex: !config.isProduction });
 
-  const { app } = createContainer(config, logger);
+  const { app, datasets } = createContainer(config, logger);
+
+  // Safety rule 6: never serve the demo dataset from production by accident.
+  const dataset = await datasets.assertStartupGuard({
+    isProduction: config.isProduction,
+    allowDemoData: config.allowDemoData,
+  });
+  if (dataset === null) {
+    logger.warn('no interaction dataset is active; interaction checks will answer 503');
+  } else {
+    logger.info(
+      { dataset: dataset.name, version: dataset.version, kind: dataset.kind },
+      'active interaction dataset',
+    );
+  }
 
   const server = app.listen(config.port, () => {
     logger.info({ port: config.port, env: config.nodeEnv }, 'api listening');

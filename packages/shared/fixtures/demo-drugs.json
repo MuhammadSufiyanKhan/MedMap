@@ -1,0 +1,33 @@
+{
+  "_comment": "Invented medicine names for demos and tests. None of these is a real medicine.",
+  "concepts": [
+    { "rxcui": "DEMO-0001", "name": "Demolol", "termType": "IN", "ingredients": ["DEMO-0001"] },
+    { "rxcui": "DEMO-0002", "name": "Samplifen", "termType": "IN", "ingredients": ["DEMO-0002"] },
+    { "rxcui": "DEMO-0003", "name": "Testazole", "termType": "IN", "ingredients": ["DEMO-0003"] },
+    { "rxcui": "DEMO-0004", "name": "Mockstatin", "termType": "IN", "ingredients": ["DEMO-0004"] },
+    { "rxcui": "DEMO-0005", "name": "Fakeoxetine", "termType": "IN", "ingredients": ["DEMO-0005"] },
+    { "rxcui": "DEMO-0006", "name": "Placebex", "termType": "IN", "ingredients": ["DEMO-0006"] },
+    { "rxcui": "DEMO-0007", "name": "Examplamine", "termType": "IN", "ingredients": ["DEMO-0007"] },
+    { "rxcui": "DEMO-0008", "name": "Trialcillin", "termType": "IN", "ingredients": ["DEMO-0008"] },
+    { "rxcui": "DEMO-0009", "name": "Sample Wort", "termType": "IN", "ingredients": ["DEMO-0009"] },
+    {
+      "rxcui": "DEMO-0010",
+      "name": "Vitamin Demo",
+      "termType": "IN",
+      "ingredients": ["DEMO-0010"]
+    },
+    {
+      "rxcui": "DEMO-0011",
+      "name": "Uncoveredine",
+      "termType": "IN",
+      "ingredients": ["DEMO-0011"]
+    },
+    { "rxcui": "DEMO-0101", "name": "Demopress", "termType": "BN", "ingredients": ["DEMO-0001"] },
+    {
+      "rxcui": "DEMO-0102",
+      "name": "Duoflex (Samplifen / Testazole)",
+      "termType": "BN",
+      "ingredients": ["DEMO-0002", "DEMO-0003"]
+    }
+  ]
+}

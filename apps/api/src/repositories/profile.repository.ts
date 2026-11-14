@@ -68,7 +68,7 @@ export class ProfileRepository {
     const doc = await ProfileModel.findOneAndUpdate(
       { _id: oid(id), version: expectedVersion },
       { $set: set, $inc: { version: 1 } },
-      { new: true },
+      { returnDocument: 'after' },
     ).lean<ProfileDoc>();
     return doc ? toEntity(doc) : null;
   }

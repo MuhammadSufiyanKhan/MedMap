@@ -104,7 +104,7 @@ export class MemberRepository {
         role: { $ne: 'owner' },
       },
       { $set: { role }, $inc: { version: 1 } },
-      { new: true },
+      { returnDocument: 'after' },
     ).lean<ProfileMemberDoc>();
     return doc ? toEntity(doc) : null;
   }

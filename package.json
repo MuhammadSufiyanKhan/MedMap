@@ -36,7 +36,9 @@
     "docs:env": "tsx scripts/check-env-table.ts",
     "docs:check": "npm run docs:lint && npm run docs:links && npm run docs:env",
     "db:up": "docker compose up -d mongo",
-    "db:down": "docker compose stop mongo"
+    "db:down": "docker compose stop mongo",
+    "check:dataset": "npm run build:shared && npm run check:dataset -w @medmap/api",
+    "check:rxnorm": "npm run build:shared && npm run check:rxnorm -w @medmap/api"
   },
   "devDependencies": {
     "@commitlint/cli": "^21.2.4",
