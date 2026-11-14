@@ -142,7 +142,7 @@ describe('idempotency', () => {
       request(ctx.app)
         .post(`${api}/profiles`)
         .set(user.auth)
-        .set('Idempotency-Key', 'key-12345678')
+        .set('Idempotency-Key', 'aaaa-aaaa-0001')
         .send({ displayName: 'Once' });
     const first = await send();
     const second = await send();
@@ -176,8 +176,8 @@ describe('idempotency', () => {
         .set(auth)
         .set('Idempotency-Key', key)
         .send({ displayName: 'Shared key' });
-    const first = await post(a.auth, 'key-shared-0001');
-    const second = await post(b.auth, 'key-shared-0001');
+    const first = await post(a.auth, 'aaaa-aaaa-0003');
+    const second = await post(b.auth, 'aaaa-aaaa-0003');
     expect(second.status).toBe(201);
     expect(second.body.id).not.toBe(first.body.id);
     expect((await post(a.auth, 'bad key!')).status).toBe(400);
@@ -188,13 +188,13 @@ describe('idempotency', () => {
     const bad = await request(ctx.app)
       .post(`${api}/profiles`)
       .set(user.auth)
-      .set('Idempotency-Key', 'key-retry-0001')
+      .set('Idempotency-Key', 'aaaa-aaaa-0004')
       .send({ displayName: '' });
     expect(bad.status).toBe(422);
     const good = await request(ctx.app)
       .post(`${api}/profiles`)
       .set(user.auth)
-      .set('Idempotency-Key', 'key-retry-0001')
+      .set('Idempotency-Key', 'aaaa-aaaa-0004')
       .send({ displayName: 'Fixed' });
     expect(good.status).toBe(201);
   });
