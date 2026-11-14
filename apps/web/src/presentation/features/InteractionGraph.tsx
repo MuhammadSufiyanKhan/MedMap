@@ -29,6 +29,10 @@ const SEVERITY_VAR: Record<Severity, string> = {
   minor: 'var(--mm-severity-minor)',
 };
 
+// Both handles sit at the centre of the label, so lines run centre to centre and the
+// label, drawn above the lines, covers their ends.
+const CENTRE_HANDLE = '!left-1/2 !top-1/2 !-translate-x-1/2 !-translate-y-1/2 !opacity-0';
+
 /** A medicine drawn as a small bottle label. Unchecked medicines are hatched and dashed. */
 function MedicineNodeView({ data }: NodeProps<MedicineNode>) {
   const { node } = data;
@@ -40,7 +44,12 @@ function MedicineNodeView({ data }: NodeProps<MedicineNode>) {
         node.checked ? 'border-text' : 'hatched border-dashed border-unchecked',
       )}
     >
-      <Handle type="target" position={Position.Top} className="!opacity-0" isConnectable={false} />
+      <Handle
+        type="target"
+        position={Position.Top}
+        className={CENTRE_HANDLE}
+        isConnectable={false}
+      />
       <p className="text-sm font-bold leading-tight">{node.label}</p>
       {node.strengthText !== null && <p className="text-xs text-text-muted">{node.strengthText}</p>}
       <p className="text-xs text-text-muted">{KIND_LABELS[node.kind]}</p>
@@ -168,7 +177,7 @@ export default function InteractionGraph({ check, focusId }: InteractionGraphPro
         proOptions={{ hideAttribution: false }}
       >
         <Background gap={24} />
-        <Controls showInteractive={false} position="bottom-right" />
+        <Controls showInteractive={false} position="top-right" />
       </ReactFlow>
     </div>
   );

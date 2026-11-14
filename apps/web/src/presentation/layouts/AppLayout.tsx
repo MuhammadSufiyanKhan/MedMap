@@ -1,4 +1,5 @@
 import { LogOut, Settings, Users } from 'lucide-react';
+import { useState } from 'react';
 import { Navigate, NavLink, Outlet, useLocation, useNavigate } from 'react-router';
 import { useRouteTransition } from '../../application/animation/hooks';
 import { useSession } from '../../application/session';
@@ -30,13 +31,10 @@ export default function AppLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const main = useRouteTransition<HTMLElement>(location.pathname);
+  const [leaving, setLeaving] = useState(false);
 
-  if (status === 'loading') {
-    return (
-      <div className="mx-auto max-w-page p-5">
-        <LoadingBlock label="Loading your account" />
-      </div>
-    );
+  if (status === 'anonymous' && leaving) {
+    return <Navigate to="/" replace />;
   }
   if (status === 'anonymous') {
     return (
@@ -46,8 +44,9 @@ export default function AppLayout() {
 
   const isProfilesActive = (path: string) => path === '/app' || path.startsWith('/app/profiles');
   const handleSignOut = () => {
-    // Leave the signed-in area first, so the guard does not bounce to the sign-in page.
-    void Promise.resolve(navigate('/')).then(() => signOut());
+    // A deliberate sign-out ends on the start page, not on the sign-in form.
+    setLeaving(true);
+    void signOut().finally(() => navigate('/', { replace: true }));
   };
 
   return (
@@ -63,7 +62,7 @@ export default function AppLayout() {
       <div className="flex flex-1">
         <aside className="no-print hidden w-56 shrink-0 flex-col gap-4 border-r border-border bg-surface-raised p-4 md:flex">
           <Logo to="/app" />
-          <nav aria-label="Main" className="flex flex-col gap-1">
+          <nav aria-label="Main" data-testid="side-nav" className="flex flex-col gap-1">
             {NAV.map((item) => (
               <NavLink
                 key={item.to}
@@ -97,15 +96,22 @@ export default function AppLayout() {
           <main
             id="main"
             ref={main}
-            className="mx-auto w-full max-w-page flex-1 px-5 py-6 pb-28 md:px-8 md:pb-10"
+            className="mx-auto min-h-dvh w-full max-w-page flex-1 px-5 py-6 pb-28 md:px-8 md:pb-10"
           >
-            <Outlet />
+            {/* The shell renders while the session is restored, and a full-height main keeps
+                the footer below the fold, so nothing jumps once data arrives. */}
+            {status === 'loading' ? (
+              <LoadingBlock label="Loading your account" rows={4} />
+            ) : (
+              <Outlet />
+            )}
           </main>
           <FooterDisclaimer />
         </div>
       </div>
       <nav
         aria-label="Main"
+        data-testid="bottom-nav"
         className="no-print fixed inset-x-0 bottom-0 z-30 flex gap-1 border-t border-border bg-surface-raised p-1.5 md:hidden"
       >
         {NAV.map((item) => (
@@ -126,7 +132,7 @@ export default function AppLayout() {
           Sign out
         </button>
       </nav>
-      <FirstRunNotice />
+      {status === 'authenticated' && <FirstRunNotice />}
       <ToastRegion />
     </div>
   );

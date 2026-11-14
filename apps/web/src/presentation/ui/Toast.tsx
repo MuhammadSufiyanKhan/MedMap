@@ -8,7 +8,7 @@ export function ToastRegion() {
   const toasts = useToasts((state) => state.toasts);
   const dismiss = useToasts((state) => state.dismiss);
   return (
-    <RadixToast.Provider swipeDirection="right" duration={6000} label="Notifications">
+    <RadixToast.Provider swipeDirection="right" duration={4000} label="Notifications">
       {toasts.map((toast) => (
         <RadixToast.Root
           key={toast.id}

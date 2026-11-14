@@ -6,7 +6,7 @@ import { ToastRegion } from '../ui/Toast';
 import { Logo } from './Logo';
 
 const LINK =
-  'inline-flex min-h-touch items-center rounded-md px-3 font-semibold text-primary hover:bg-primary-soft';
+  'inline-flex min-h-touch items-center whitespace-nowrap rounded-md px-2 font-semibold text-primary hover:bg-primary-soft md:px-3';
 
 /** Shell for the landing page and the sign-in pages. */
 export default function PublicLayout() {
@@ -23,7 +23,7 @@ export default function PublicLayout() {
       </a>
       <DemoBanner />
       <OfflineBanner />
-      <header className="border-b border-border bg-surface-raised px-5">
+      <header className="border-b border-border bg-surface-raised px-3 md:px-5">
         <div className="mx-auto flex max-w-page items-center justify-between gap-3 py-2">
           <Logo />
           <nav aria-label="Account" className="flex items-center gap-1">
@@ -33,12 +33,12 @@ export default function PublicLayout() {
               </Link>
             ) : (
               <>
-                <Link to="/login" className={LINK}>
+                <Link to="/login" className={`${LINK} max-sm:hidden`}>
                   Sign in
                 </Link>
                 <Link
                   to="/register"
-                  className="inline-flex min-h-touch items-center rounded-md bg-primary px-4 font-semibold text-on-primary hover:bg-primary-hover"
+                  className="inline-flex min-h-touch items-center whitespace-nowrap rounded-md bg-primary px-3 font-semibold text-on-primary hover:bg-primary-hover md:px-4"
                 >
                   Create account
                 </Link>

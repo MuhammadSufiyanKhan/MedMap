@@ -12,5 +12,5 @@
     "sourceMap": false,
     "allowImportingTsExtensions": false
   },
-  "include": ["src", "e2e", "tests", "*.ts"]
+  "include": ["src", "e2e", "tests", "scripts", "*.ts"]
 }

@@ -51,6 +51,49 @@ jobs:
       - name: Production dependency audit
         run: npm audit --omit=dev --audit-level=high
 
+  e2e:
+    name: End-to-end, accessibility and Lighthouse
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    services:
+      mongo:
+        image: mongo:8
+        ports:
+          - 27017:27017
+        options: >-
+          --health-cmd "mongosh --quiet --eval \"db.adminCommand('ping').ok\""
+          --health-interval 10s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      MONGO_TEST_URI: mongodb://127.0.0.1:27017
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+      - run: npm ci
+      - name: Build
+        run: npm run build
+      - name: Install Chromium for Playwright
+        run: npx playwright install --with-deps chromium
+        working-directory: apps/web
+      - name: Playwright tests (flows, responsive screenshots, motion, axe)
+        run: npm run test:e2e
+      - name: Lighthouse budgets on the production build
+        run: bash scripts/run-lighthouse.sh
+      - name: Upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: e2e-output
+          path: |
+            apps/web/e2e/screenshots
+            apps/web/playwright-report
+          if-no-files-found: ignore
+          retention-days: 7
+
   docs:
     name: Docs checks
     runs-on: ubuntu-latest

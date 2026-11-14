@@ -64,7 +64,9 @@ export class ApiClient {
   private onSessionLost: (() => void) | null = null;
 
   public constructor(
-    private readonly fetchImpl: FetchLike = (input, init) => fetch(input, init),
+    private readonly fetchImpl: FetchLike = (input, init) =>
+      // Resolved against the page origin so the same code works in browsers and in tests.
+      fetch(new URL(input, window.location.origin), init),
     private readonly baseUrl = '/api/v1',
   ) {}
 

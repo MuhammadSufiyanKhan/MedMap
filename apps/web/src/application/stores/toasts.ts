@@ -20,7 +20,8 @@ export const useToasts = create<ToastState>((set) => ({
   show: (text, tone = 'info') => {
     const id = nextId;
     nextId += 1;
-    set((state) => ({ toasts: [...state.toasts.slice(-2), { id, tone, text }] }));
+    // Only the latest message is kept, so confirmations never pile up over the page.
+    set({ toasts: [{ id, tone, text }] });
   },
   dismiss: (id) => {
     set((state) => ({ toasts: state.toasts.filter((toast) => toast.id !== id) }));

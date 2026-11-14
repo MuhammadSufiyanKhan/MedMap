@@ -67,7 +67,7 @@ export default function ResultsPage() {
       <PageHeader
         back={{ to: base, label: name }}
         title={`Results for ${name}`}
-        lead={check.data ? `Checked ${formatDateTime(check.data.createdAt)}` : undefined}
+        lead={check.data ? `Checked ${formatDateTime(check.data.createdAt)}` : 'Checking the list…'}
         actions={
           <>
             <Button

@@ -36,7 +36,7 @@ export class CompositeNormalizer implements DrugNormalizer {
   public async search(term: string): Promise<DrugCandidate[]> {
     const seen = new Set<string>();
     const merged: DrugCandidate[] = [];
-    let failure: unknown;
+    let failure: Error | undefined;
     for (const normalizer of this.normalizers) {
       try {
         for (const candidate of await normalizer.search(term)) {
@@ -46,7 +46,7 @@ export class CompositeNormalizer implements DrugNormalizer {
           }
         }
       } catch (error) {
-        failure = error;
+        failure = error instanceof Error ? error : new Error('name lookup failed');
       }
     }
     if (merged.length === 0 && failure !== undefined) {
@@ -56,7 +56,7 @@ export class CompositeNormalizer implements DrugNormalizer {
   }
 
   public async resolve(rxcui: string): Promise<ResolvedConcept | null> {
-    let failure: unknown;
+    let failure: Error | undefined;
     for (const normalizer of this.normalizers) {
       try {
         const concept = await normalizer.resolve(rxcui);
@@ -64,7 +64,7 @@ export class CompositeNormalizer implements DrugNormalizer {
           return concept;
         }
       } catch (error) {
-        failure = error;
+        failure = error instanceof Error ? error : new Error('name lookup failed');
       }
     }
     if (failure !== undefined) {
