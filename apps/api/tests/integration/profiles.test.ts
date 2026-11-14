@@ -161,7 +161,7 @@ describe('idempotency', () => {
       request(ctx.app)
         .post(`${api}/profiles`)
         .set(user.auth)
-        .set('Idempotency-Key', 'key-abcdefgh')
+        .set('Idempotency-Key', 'idem-key-0002')
         .send({ displayName });
     expect((await post('One')).status).toBe(201);
     expect((await post('Two')).status).toBe(409);
