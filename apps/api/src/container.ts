@@ -1,4 +1,4 @@
-import type { Express, RequestHandler } from 'express';
+import type { Express } from 'express';
 import { buildApp } from './app.js';
 import type { AppConfig } from './config/env.js';
 import { AuthController } from './controllers/auth.controller.js';
@@ -7,10 +7,16 @@ import { MedicationController } from './controllers/medication.controller.js';
 import { ProfileController } from './controllers/profile.controller.js';
 import { ConsoleEmailAdapter, SmtpEmailAdapter } from './integrations/email/email.js';
 import type { EmailAdapter } from './integrations/email/email.js';
+import { AnthropicExtractor } from './integrations/label-extractor/anthropic.js';
+import type { LabelExtractor } from './integrations/label-extractor/extractor.js';
+import { MockExtractor } from './integrations/label-extractor/mock.js';
+import { OllamaExtractor } from './integrations/label-extractor/ollama.js';
+import type { ExtractorFetch } from './integrations/label-extractor/ollama.js';
 import { DemoNormalizer } from './integrations/rxnorm/demo-normalizer.js';
 import type { DrugNormalizer } from './integrations/rxnorm/normalizer.js';
 import { RxNormNormalizer } from './integrations/rxnorm/rxnorm-client.js';
-import { CacheRepository } from './repositories/cache.repository.js';
+import { createLabelUpload } from './middleware/upload.js';
+import { CacheRepository, ExtractionUsageRepository } from './repositories/cache.repository.js';
 import { DatasetRepository } from './repositories/dataset.repository.js';
 import { AuditLogRepository } from './repositories/audit-log.repository.js';
 import { pingDatabase } from './repositories/db.js';
@@ -29,6 +35,7 @@ import { AuthService } from './services/auth.service.js';
 import { DatasetService } from './services/dataset.service.js';
 import { IdempotencyService } from './services/idempotency.service.js';
 import { InteractionCheckService } from './services/interaction-check.service.js';
+import { LabelExtractionService } from './services/label-extraction.service.js';
 import { MedicationService } from './services/medication.service.js';
 import { NormalizationService } from './services/normalization.service.js';
 import { ProfileService } from './services/profile.service.js';
@@ -46,6 +53,7 @@ export interface ContainerOverrides {
   email?: EmailAdapter;
   /** Replaces the live RxNorm client. `null` means "no real lookup available". */
   drugNormalizer?: DrugNormalizer | null;
+  labelExtractor?: LabelExtractor;
   pingDatabase?: () => Promise<boolean>;
 }
 
@@ -62,9 +70,19 @@ function createEmailAdapter(config: AppConfig, logger: Logger): EmailAdapter {
   return new ConsoleEmailAdapter(logger, config.isProduction);
 }
 
-const passthrough: RequestHandler = (_req, _res, next) => {
-  next();
-};
+const extractorFetch: ExtractorFetch = (url, init) => fetch(url, init);
+
+/** Builds the configured extractor. Configuration validation has already checked the inputs. */
+function createLabelExtractor(config: AppConfig): LabelExtractor {
+  const { adapter, baseUrl, model, apiKey } = config.extraction;
+  if (adapter === 'ollama' && baseUrl !== undefined && model !== undefined) {
+    return new OllamaExtractor(baseUrl, model, extractorFetch);
+  }
+  if (adapter === 'anthropic' && apiKey !== undefined && model !== undefined) {
+    return new AnthropicExtractor(apiKey, model, extractorFetch, baseUrl);
+  }
+  return new MockExtractor();
+}
 
 /**
  * Composition root: builds every repository, service and controller once and wires them
@@ -143,13 +161,27 @@ export function createContainer(
     audit,
   );
 
+  const labelExtraction = new LabelExtractionService(
+    overrides.labelExtractor ?? createLabelExtractor(config),
+    new ExtractionUsageRepository(),
+    access,
+    audit,
+    clock,
+    logger,
+    {
+      enabled: config.extraction.enabled,
+      timeoutMs: config.extraction.timeoutMs,
+      dailyCap: config.extraction.dailyCap,
+    },
+  );
+
   const routes = buildRoutes({
     auth: new AuthController(auth, config.auth.cookieSecure),
     profiles: new ProfileController(profileService, sharing, audit, access),
-    medications: new MedicationController(medicationService, normalization),
+    medications: new MedicationController(medicationService, normalization, labelExtraction),
     interactions: new InteractionController(interactionChecks, datasets, {
       enabled: config.extraction.enabled,
-      provider: config.extraction.adapter,
+      provider: labelExtraction.providerName,
     }),
   });
 
@@ -159,7 +191,7 @@ export function createContainer(
     routes,
     verifyAccessToken: (token) => tokens.verifyAccessToken(token),
     idempotency,
-    multipart: passthrough,
+    multipart: createLabelUpload(),
     pingDatabase: overrides.pingDatabase ?? pingDatabase,
     version: readVersion(),
   });

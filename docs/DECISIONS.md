@@ -152,3 +152,23 @@ Short architecture decision records. Newest last.
   milestone; M6 adds account export and deletion.
 - **Alternatives:** hold the sharing screens back until M6.
 - **Why:** the API has existed since M1 and the profile page links to sharing.
+
+## ADR-0020: label extractor adapters
+
+- **Decision:** three adapters behind `LabelExtractor`: `mock` (returns recorded answers
+  for the synthetic fixtures), `ollama` (local development) and `anthropic` (hosted, the
+  Messages API called with `fetch`, answer forced through one tool so it is structured).
+  Model names and keys come only from environment variables.
+- **Alternatives:** a provider SDK; free-text replies parsed with regular expressions.
+- **Why:** plain `fetch` keeps the dependency list short and the request visible; a forced
+  tool with a JSON schema makes prose replies impossible to mistake for data.
+
+## ADR-0021: the mock extractor recognises fixtures by image size
+
+- **Decision:** each synthetic label image has a unique width and height, and the mock
+  looks the answer up by those dimensions.
+- **Alternatives:** matching by file hash.
+- **Why:** uploads are re-encoded before they reach an extractor, so a hash of the
+  original file is gone by then, while the dimensions survive. The mock does no reading,
+  so `npm run eval:extractor` with the mock only proves the pipeline runs; accuracy
+  numbers mean something only with a real adapter.

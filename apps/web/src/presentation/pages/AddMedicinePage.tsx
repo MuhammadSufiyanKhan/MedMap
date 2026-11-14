@@ -1,12 +1,16 @@
 import { useState } from 'react';
 import { useNavigate, useParams } from 'react-router';
+import { useAppConfig } from '../../application/queries/medications';
 import { useProfile } from '../../application/queries/profiles';
 import { useToasts } from '../../application/stores/toasts';
 import { errorMessage } from '../../domain/errors';
 import { MedicineForm } from '../features/MedicineForm';
+import { PhotoFlow } from '../features/PhotoFlow';
 import { Button } from '../ui/Button';
 import { Card, ErrorState, LoadingBlock } from '../ui/Card';
+import { Notice } from '../ui/Notice';
 import { ButtonLink, PageHeader } from '../ui/Page';
+import { Tabs } from '../ui/Tabs';
 
 export default function AddMedicinePage() {
   const { profileId = '' } = useParams();
@@ -15,6 +19,12 @@ export default function AddMedicinePage() {
   const show = useToasts((state) => state.show);
   const [saved, setSaved] = useState<string[]>([]);
   const [formKey, setFormKey] = useState(0);
+  const [tab, setTab] = useState('type');
+  const extraction = useAppConfig().data?.labelExtraction;
+  const recordSaved = (displayName: string) => {
+    show('Medicine added');
+    setSaved((current) => [...current, displayName]);
+  };
   const base = `/app/profiles/${profileId}`;
 
   if (profile.isPending) {
@@ -39,18 +49,46 @@ export default function AddMedicinePage() {
       <PageHeader
         back={{ to: base, label: profile.data.displayName }}
         title="Add a medicine"
-        lead="Type the name as it is printed on the label."
+        lead="Type the name as it is printed on the label, or use a photo of the label."
       />
       <div className="grid gap-6 lg:grid-cols-[minmax(0,2fr)_minmax(0,1fr)]">
-        <MedicineForm
-          key={formKey}
-          profileId={profileId}
-          source="manual"
-          onSaved={(displayName) => {
-            show('Medicine added');
-            setSaved((current) => [...current, displayName]);
-            setFormKey((current) => current + 1);
-          }}
+        <Tabs
+          label="How to add the medicine"
+          value={tab}
+          onValueChange={setTab}
+          items={[
+            {
+              value: 'type',
+              label: 'Type the name',
+              content: (
+                <MedicineForm
+                  key={formKey}
+                  profileId={profileId}
+                  source="manual"
+                  onSaved={(displayName) => {
+                    recordSaved(displayName);
+                    setFormKey((current) => current + 1);
+                  }}
+                />
+              ),
+            },
+            {
+              value: 'photo',
+              label: 'Use a photo',
+              content:
+                extraction?.enabled === true ? (
+                  <PhotoFlow
+                    profileId={profileId}
+                    provider={extraction.provider ?? 'the configured provider'}
+                    onSaved={recordSaved}
+                  />
+                ) : (
+                  <Notice tone="neutral" title="Reading labels from photos is switched off here">
+                    <p>Type the medicine names instead. Everything else works the same way.</p>
+                  </Notice>
+                ),
+            },
+          ]}
         />
         <aside aria-label="Added in this visit">
           <Card className="flex flex-col gap-3">

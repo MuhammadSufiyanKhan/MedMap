@@ -7,6 +7,8 @@ import type {
 } from '@medmap/shared';
 import { API_PREFIX } from '../config/constants.js';
 import { toMedicationDto } from '../dto/mappers.js';
+import { uploadedImages } from '../utils/upload-files.js';
+import type { LabelExtractionService } from '../services/label-extraction.service.js';
 import type { MedicationService } from '../services/medication.service.js';
 import type { NormalizationService } from '../services/normalization.service.js';
 import type { Handler } from '../utils/http.js';
@@ -21,6 +23,7 @@ export class MedicationController {
   public constructor(
     private readonly medications: MedicationService,
     private readonly normalization: NormalizationService,
+    private readonly labels: LabelExtractionService,
   ) {}
 
   public list: Handler<ProfileParams, MedicationListQuery, unknown> = async (ctx) => {
@@ -64,6 +67,15 @@ export class MedicationController {
   public remove: Handler<MedicationParams, unknown, unknown> = async (ctx) => {
     await this.medications.delete(ctx.userId, ctx.params.profileId, ctx.params.medicationId);
     return { status: 204 };
+  };
+
+  public extractLabels: Handler<ProfileParams, unknown, unknown> = async (ctx) => {
+    const result = await this.labels.extract(
+      ctx.userId,
+      ctx.params.profileId,
+      uploadedImages(ctx.req.files),
+    );
+    return { status: 200, body: result };
   };
 
   public normalize: Handler<unknown, NormalizeQuery, unknown> = async (ctx) => {

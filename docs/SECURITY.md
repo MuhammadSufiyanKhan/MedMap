@@ -66,3 +66,27 @@ milestone. To report a vulnerability see [../SECURITY.md](../SECURITY.md).
 - Entries hold actor id, profile id, action and target id. No names, notes or medicine
   names are written.
 - Entries are erased only with their profile or account.
+
+## Label photos
+
+- Off unless `LABEL_EXTRACTION_ENABLED=true`. The mock extractor is refused in production.
+- The request is authenticated and role-checked (caregiver or owner) before any upload
+  bytes are parsed.
+- Photos are held in memory only: never written to disk, to the database or to logs.
+- Limits: 5 MB per photo, 3 photos per request, no other form fields. Over the limits is
+  413; a non-multipart body is 415.
+- The file type is decided from magic bytes (`file-type`), not from the name or the
+  client's Content-Type. Only JPEG, PNG and WebP are accepted.
+- Every photo is decoded and re-encoded as JPEG with `sharp` before it leaves the server.
+  That removes EXIF and all other metadata (location, device, time) and rejects files that
+  are not really images. Large photos are scaled to 1600 px.
+- Each provider call has a 20-second timeout. Errors and timeouts become "could not read"
+  results; provider error bodies are never returned or logged.
+- Limits: 10 requests per IP per hour, plus a per-user daily cap (`EXTRACTION_DAILY_CAP`,
+  default 20 photos). Rejected uploads do not use up the allowance.
+- The model's reply must match a strict schema; anything else is dropped. The system
+  prompt tells the model to transcribe only and to ignore instructions printed on a label.
+  Extracted text is only ever shown back to the user for confirmation. It never becomes
+  clinical content and nothing follows instructions found in it.
+- The consent screen says that photos go to the configured provider and are not stored by
+  MedMap. Which provider you configure decides what that provider keeps: check its terms.

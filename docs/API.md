@@ -89,3 +89,47 @@ curl -s -X POST "$API/invite-acceptances" \
 
 Roles: `owner` can do everything; `caregiver` can read and change medicines; `viewer` can
 only read. A user who is not a member gets 404 for every profile route.
+
+## Medicines
+
+Look a name up, then add the medicine with the chosen concept id. Ingredients are always
+derived on the server:
+
+```bash
+curl -s "$API/drugs/normalize?term=Demolol" -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+curl -s -X POST "$API/profiles/$PROFILE_ID/medications" \
+  -H "Authorization: Bearer $TOKEN" -H 'Content-Type: application/json' \
+  -d '{"displayName":"Demolol","rxcui":"DEMO-0001","strengthText":"10 mg","kind":"prescription"}'
+```
+
+Leave `rxcui` out to save a medicine that could not be matched; it is then reported as
+"could not check".
+
+## Label photos
+
+The only non-JSON endpoint. Up to 3 images of at most 5 MB in the `images` field:
+
+```bash
+curl -s -X POST "$API/profiles/$PROFILE_ID/label-extractions" \
+  -H "Authorization: Bearer $TOKEN" \
+  -F "images=@packages/shared/fixtures/labels/label-01-demolol.png"
+```
+
+The response lists `candidates` (with `confidence` and `needsReview`) and `failures`.
+Nothing is saved: create each medicine with the endpoint above after the user confirms it.
+
+## Interaction checks
+
+```bash
+curl -s -X POST "$API/profiles/$PROFILE_ID/interaction-checks" -H "Authorization: Bearer $TOKEN"
+```
+
+```bash
+curl -s "$API/profiles/$PROFILE_ID/interaction-checks/latest" -H "Authorization: Bearer $TOKEN"
+```
+
+The result holds `datasetInfo`, `flaggedPairs` (most severe first), `uncheckedMedications`
+with a reason, `checkedPairCount` and `stale`. Pairs with no flag are not listed.

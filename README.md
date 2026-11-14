@@ -58,6 +58,9 @@ Built so far:
 - Web app: landing page, sign-in flows, profiles, add-medicine flow with a review step,
   results as a ranked list, a graph and a table, a print page for the pharmacist, sharing
   and settings (themes, large text).
+- Label photos: up to three photos are read into name, strength and form by a pluggable
+  extractor (mock, Ollama or a hosted vision model). Every reading goes through a
+  confirm-and-edit step; nothing is saved before that. Off by default.
 - Results never rely on colour: each severity has a line style, an icon and a text label.
 - Motion with GSAP and ScrollTrigger that switches off under `prefers-reduced-motion`.
 
@@ -243,5 +246,5 @@ No real interaction dataset is bundled. See [docs/DATA_SOURCES.md](docs/DATA_SOU
 
 ## Roadmap
 
-Planned, not built yet: label photos (M5), account export and delete (M6), hardening (M7), deployment (M8).
+Planned, not built yet: account export and delete (M6), hardening (M7), deployment (M8).
 After v1: dose reminders, loose-pill identification, EHR integration, native apps.

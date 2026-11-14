@@ -53,6 +53,7 @@ const EXPECTATIONS: Record<string, Expectation> = {
     body: { status: 'stopped' },
   },
   'delete /profiles/:profileId/medications/:medicationId': { minRole: 'caregiver' },
+  'post /profiles/:profileId/label-extractions': { minRole: 'caregiver', multipart: true },
   'post /profiles/:profileId/interaction-checks': { minRole: 'viewer' },
   'get /profiles/:profileId/interaction-checks/latest': { minRole: 'viewer' },
 };
