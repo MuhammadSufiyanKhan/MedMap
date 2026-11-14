@@ -2,6 +2,7 @@ import {
   appConfigSchema,
   createMedicationRequestSchema,
   interactionCheckSchema,
+  labelExtractionResponseSchema,
   medicationListQuerySchema,
   medicationPageSchema,
   medicationParamsSchema,
@@ -68,6 +69,22 @@ export function medicationRoutes(controller: MedicationController): AnyRouteSpec
       params: medicationParamsSchema,
       responses: { 204: { description: 'Removed' } },
       handler: controller.remove,
+    }),
+    defineRoute({
+      method: 'post',
+      path: '/profiles/:profileId/label-extractions',
+      summary: 'Read medicine names from up to 3 label photos. Nothing is saved',
+      tag,
+      multipart: true,
+      rateLimit: 'extraction',
+      params: profileParamsSchema,
+      responses: {
+        200: {
+          description: 'Candidates to confirm or edit',
+          schema: labelExtractionResponseSchema,
+        },
+      },
+      handler: controller.extractLabels,
     }),
     defineRoute({
       method: 'get',

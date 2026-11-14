@@ -17,7 +17,8 @@
     "eval:extractor": "tsx --env-file-if-exists=../../.env src/jobs/eval-extractor.ts",
     "check:dataset": "tsx --env-file-if-exists=../../.env src/jobs/check-dataset.ts",
     "check:rxnorm": "tsx src/jobs/check-rxnorm.ts",
-    "e2e:serve": "tsx src/jobs/migrate.ts && tsx src/jobs/seed-demo.ts && tsx src/server.ts"
+    "e2e:serve": "tsx src/jobs/migrate.ts && tsx src/jobs/seed-demo.ts && tsx src/server.ts",
+    "fixtures:labels": "tsx src/jobs/generate-label-fixtures.ts"
   },
   "dependencies": {
     "@medmap/shared": "0.1.0",

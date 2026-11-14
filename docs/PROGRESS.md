@@ -12,7 +12,7 @@ A new session can resume from this file and `docs/PLAN.md` alone.
 | M3  | not started |                                                               |
 | M4  | in progress |                                                               |
 | M5  | in progress |                                                               |
-| M6  | not started |                                                               |
+| M6  | in progress |                                                               |
 | M7  | not started |                                                               |
 | M8  | not started |                                                               |
 
@@ -25,15 +25,13 @@ A new session can resume from this file and `docs/PLAN.md` alone.
 
 ## Next steps
 
-1. M5: `LabelExtractor` port with mock, Ollama and hosted adapters; upload middleware
-   (memory only, 5 MB, 3 files, magic bytes, EXIF strip with sharp); per-user daily cap;
-   `POST /profiles/:profileId/label-extractions`; photo tab with consent and the
-   confirm-and-edit queue (reuse `MedicineForm`); synthetic label fixtures and the
-   evaluation script; second Playwright flow.
-2. M6: `GET /me/export`, `DELETE /me`; wire `features/AccountData.tsx`; extend the main
-   Playwright flow with export and delete.
-3. M7: Dockerfiles, full compose, security review, final docs pass.
-4. M8: deployment workflows, `vercel.json`, `render.yaml`, secrets script, setup checklist.
+1. M6: `GET /me/export`, `DELETE /me` (password-confirmed); `AccountService`; wire
+   `apps/web/src/presentation/features/AccountData.tsx`; extend the main Playwright flow
+   with export and delete; document what happens to shared profiles.
+2. M7: Dockerfiles for api and web, full `docker-compose.yml`, security review, Sentry
+   flag, final docs pass, fresh-clone check of every README command.
+3. M8: deployment workflows, `vercel.json`, `render.yaml`, `scripts/setup-secrets.sh`,
+   `docs/SETUP_CHECKLIST.md`, release-please, nightly workflow, Dependabot auto-merge.
 
 ## Lessons for later sessions
 
