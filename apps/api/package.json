@@ -14,7 +14,9 @@
     "migrate": "tsx --env-file-if-exists=../../.env src/jobs/migrate.ts",
     "seed:demo": "tsx --env-file-if-exists=../../.env src/jobs/seed-demo.ts",
     "import:interactions": "tsx --env-file-if-exists=../../.env src/jobs/import-interactions.ts",
-    "eval:extractor": "tsx --env-file-if-exists=../../.env src/jobs/eval-extractor.ts"
+    "eval:extractor": "tsx --env-file-if-exists=../../.env src/jobs/eval-extractor.ts",
+    "check:dataset": "tsx --env-file-if-exists=../../.env src/jobs/check-dataset.ts",
+    "check:rxnorm": "tsx src/jobs/check-rxnorm.ts"
   },
   "dependencies": {
     "@medmap/shared": "0.1.0",

@@ -2,9 +2,16 @@ import type { Express, RequestHandler } from 'express';
 import { buildApp } from './app.js';
 import type { AppConfig } from './config/env.js';
 import { AuthController } from './controllers/auth.controller.js';
+import { InteractionController } from './controllers/interaction.controller.js';
+import { MedicationController } from './controllers/medication.controller.js';
 import { ProfileController } from './controllers/profile.controller.js';
 import { ConsoleEmailAdapter, SmtpEmailAdapter } from './integrations/email/email.js';
 import type { EmailAdapter } from './integrations/email/email.js';
+import { DemoNormalizer } from './integrations/rxnorm/demo-normalizer.js';
+import type { DrugNormalizer } from './integrations/rxnorm/normalizer.js';
+import { RxNormNormalizer } from './integrations/rxnorm/rxnorm-client.js';
+import { CacheRepository } from './repositories/cache.repository.js';
+import { DatasetRepository } from './repositories/dataset.repository.js';
 import { AuditLogRepository } from './repositories/audit-log.repository.js';
 import { pingDatabase } from './repositories/db.js';
 import { IdempotencyRepository } from './repositories/idempotency.repository.js';
@@ -19,7 +26,11 @@ import { buildRoutes } from './routes/index.js';
 import { AccessService } from './services/access.service.js';
 import { AuditService } from './services/audit.service.js';
 import { AuthService } from './services/auth.service.js';
+import { DatasetService } from './services/dataset.service.js';
 import { IdempotencyService } from './services/idempotency.service.js';
+import { InteractionCheckService } from './services/interaction-check.service.js';
+import { MedicationService } from './services/medication.service.js';
+import { NormalizationService } from './services/normalization.service.js';
 import { ProfileService } from './services/profile.service.js';
 import { SharingService } from './services/sharing.service.js';
 import { TokenService } from './services/token.service.js';
@@ -33,12 +44,15 @@ import { readVersion } from './utils/version.js';
 export interface ContainerOverrides {
   clock?: Clock;
   email?: EmailAdapter;
+  /** Replaces the live RxNorm client. `null` means "no real lookup available". */
+  drugNormalizer?: DrugNormalizer | null;
   pingDatabase?: () => Promise<boolean>;
 }
 
 export interface Container {
   app: Express;
   routes: AnyRouteSpec[];
+  datasets: DatasetService;
 }
 
 function createEmailAdapter(config: AppConfig, logger: Logger): EmailAdapter {
@@ -105,9 +119,38 @@ export function createContainer(
     config.appBaseUrl,
   );
 
+  const datasetRepository = new DatasetRepository();
+  const datasets = new DatasetService(datasetRepository, clock);
+  const realNormalizer =
+    overrides.drugNormalizer !== undefined
+      ? overrides.drugNormalizer
+      : config.rxnorm.enabled
+        ? new RxNormNormalizer(config.rxnorm.baseUrl, (url, init) => fetch(url, init))
+        : null;
+  const normalization = new NormalizationService(
+    realNormalizer,
+    new DemoNormalizer(),
+    datasetRepository,
+    new CacheRepository(),
+    clock,
+  );
+  const medicationService = new MedicationService(medications, normalization, access, audit);
+  const interactionChecks = new InteractionCheckService(
+    datasetRepository,
+    medications,
+    checks,
+    access,
+    audit,
+  );
+
   const routes = buildRoutes({
     auth: new AuthController(auth, config.auth.cookieSecure),
     profiles: new ProfileController(profileService, sharing, audit, access),
+    medications: new MedicationController(medicationService, normalization),
+    interactions: new InteractionController(interactionChecks, datasets, {
+      enabled: config.extraction.enabled,
+      provider: config.extraction.adapter,
+    }),
   });
 
   const app = buildApp({
@@ -121,5 +164,5 @@ export function createContainer(
     version: readVersion(),
   });
 
-  return { app, routes };
+  return { app, routes, datasets };
 }

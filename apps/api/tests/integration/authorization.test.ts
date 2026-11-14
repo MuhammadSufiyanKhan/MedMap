@@ -2,7 +2,13 @@ import type { Express } from 'express';
 import request from 'supertest';
 import { beforeAll, describe, expect, it } from 'vitest';
 import type { ProfileRole } from '@medmap/shared';
-import { createProfile, registerUser, setupTestApp, shareProfile } from '../helpers/app.js';
+import {
+  createProfile,
+  registerUser,
+  seedDemoDataset,
+  setupTestApp,
+  shareProfile,
+} from '../helpers/app.js';
 import type { TestUser } from '../helpers/app.js';
 
 /**
@@ -36,6 +42,19 @@ const EXPECTATIONS: Record<string, Expectation> = {
   },
   'delete /profiles/:profileId/invites/:inviteId': { minRole: 'owner' },
   'get /profiles/:profileId/audit-logs': { minRole: 'owner' },
+  'get /profiles/:profileId/medications': { minRole: 'viewer' },
+  'post /profiles/:profileId/medications': {
+    minRole: 'caregiver',
+    body: { displayName: 'Unmatched tablets' },
+  },
+  'get /profiles/:profileId/medications/:medicationId': { minRole: 'viewer' },
+  'patch /profiles/:profileId/medications/:medicationId': {
+    minRole: 'caregiver',
+    body: { status: 'stopped' },
+  },
+  'delete /profiles/:profileId/medications/:medicationId': { minRole: 'caregiver' },
+  'post /profiles/:profileId/interaction-checks': { minRole: 'viewer' },
+  'get /profiles/:profileId/interaction-checks/latest': { minRole: 'viewer' },
 };
 
 const RANK: Record<ProfileRole, number> = { viewer: 1, caregiver: 2, owner: 3 };
@@ -77,6 +96,7 @@ beforeAll(async () => {
   await shareProfile(ctx.app, owner, profileId, caregiver, 'caregiver');
   await shareProfile(ctx.app, owner, profileId, viewer, 'viewer');
   await shareProfile(ctx.app, owner, profileId, target, 'viewer');
+  await seedDemoDataset(ctx);
 });
 
 describe('profile-scoped authorisation', () => {
@@ -136,7 +156,12 @@ describe('profile-scoped authorisation', () => {
           continue;
         }
         const res = await call(ctx.app, key, expectation, user);
-        expect([401, 403, 404], `${key} as ${role}`).not.toContain(res.status);
+        // 404 here can only mean "this sub-resource does not exist yet", so only the
+        // authentication and role failures are ruled out.
+        expect([401, 403], `${key} as ${role}`).not.toContain(res.status);
+        if (!key.includes(':medicationId') && !key.endsWith('/latest')) {
+          expect(res.status, `${key} as ${role}`).not.toBe(404);
+        }
       }
     }
   });

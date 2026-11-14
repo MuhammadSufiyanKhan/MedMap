@@ -158,7 +158,7 @@ export class MedicationRepository {
     const doc = await MedicationModel.findOneAndUpdate(
       { _id: oid(id), profileId: oid(profileId), version: expectedVersion },
       { $set: set, $inc: { version: 1 } },
-      { new: true },
+      { returnDocument: 'after' },
     ).lean<MedicationDoc>();
     return doc ? toEntity(doc) : null;
   }

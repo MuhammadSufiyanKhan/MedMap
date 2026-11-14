@@ -1,0 +1,73 @@
+{
+  "_comment": "Hand-written from the documented RxNav response shapes. Not captured from the live API; `npm run check:rxnorm` compares the live shapes when the network allows.",
+  "/rxcui.json?name=aspirin&search=2": { "idGroup": { "rxnormId": ["1191"] } },
+  "/rxcui/1191/properties.json": {
+    "properties": {
+      "rxcui": "1191",
+      "name": "aspirin",
+      "synonym": "",
+      "tty": "IN",
+      "language": "ENG",
+      "suppress": "N",
+      "umlscui": "C0004057"
+    }
+  },
+  "/rxcui.json?name=Tylenol&search=2": { "idGroup": { "rxnormId": ["202433"] } },
+  "/rxcui/202433/properties.json": {
+    "properties": {
+      "rxcui": "202433",
+      "name": "Tylenol",
+      "tty": "BN",
+      "language": "ENG",
+      "suppress": "N"
+    }
+  },
+  "/rxcui/202433/related.json?tty=IN": {
+    "relatedGroup": {
+      "rxcui": null,
+      "termType": ["IN"],
+      "conceptGroup": [
+        {
+          "tty": "IN",
+          "conceptProperties": [{ "rxcui": "161", "name": "acetaminophen", "tty": "IN" }]
+        }
+      ]
+    }
+  },
+  "/rxcui.json?name=asprin&search=2": { "idGroup": {} },
+  "/approximateTerm.json?term=asprin&maxEntries=8": {
+    "approximateGroup": {
+      "inputTerm": null,
+      "candidate": [
+        { "rxcui": "1191", "rxaui": "12345", "score": "9.5", "rank": "1", "source": "RXNORM" },
+        { "rxcui": "1191", "rxaui": "67890", "score": "9.5", "rank": "1", "source": "MMSL" },
+        { "rxcui": "not-a-number", "score": "5", "rank": "2" },
+        { "rxcui": "999999", "score": "abc", "rank": "3" }
+      ]
+    }
+  },
+  "/rxcui/999999/properties.json": {},
+  "/rxcui.json?name=zzzznotadrug&search=2": { "idGroup": {} },
+  "/approximateTerm.json?term=zzzznotadrug&maxEntries=8": { "approximateGroup": {} },
+  "/rxcui/1000001/properties.json": {
+    "properties": {
+      "rxcui": "1000001",
+      "name": "combo product 5 MG / 10 MG Oral Tablet",
+      "tty": "SCD"
+    }
+  },
+  "/rxcui/1000001/related.json?tty=IN": {
+    "relatedGroup": {
+      "conceptGroup": [
+        {
+          "tty": "IN",
+          "conceptProperties": [
+            { "rxcui": "17767", "name": "amlodipine" },
+            { "rxcui": "83367", "name": "atorvastatin" }
+          ]
+        },
+        { "tty": "BN" }
+      ]
+    }
+  }
+}

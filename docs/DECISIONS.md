@@ -84,3 +84,44 @@ Short architecture decision records. Newest last.
 - **Alternatives:** a display serif plus a text sans; system fonts.
 - **Why:** it was designed for readers with low vision, which fits an audience of older
   people. Self-hosting keeps third-party requests off medical screens.
+
+## ADR-0012: M2 and M3 land in one pull request
+
+- **Decision:** medicines with name matching (M2) and the dataset, guard and engine (M3)
+  are merged together.
+- **Alternatives:** two pull requests.
+- **Why:** the demo name catalogue is only valid while the demo dataset is active, so the
+  normaliser depends on the dataset code. Splitting would have meant a temporary shim.
+  This departs from "one pull request per milestone" in the brief.
+
+## ADR-0013: "not in dataset" is its own unchecked reason
+
+- **Decision:** a medicine whose ingredients never appear in the dataset is reported as
+  could not check (`not_in_dataset`), the same as one that could not be identified.
+- **Alternatives:** count it as checked with no flags.
+- **Why:** if the source has no entry at all for an ingredient, the absence of a flag says
+  nothing. Reporting it as checked would overstate what was looked up (safety rule 4).
+
+## ADR-0014: an invented demo catalogue, gated on the active dataset
+
+- **Decision:** the demo dataset uses made-up medicine names with `DEMO-` ids. A small
+  demo normaliser resolves those names, and it is consulted only while the active dataset
+  has `kind: demo`.
+- **Alternatives:** demo pairs between real medicines.
+- **Why:** fake pairs between real medicines would be invented medical facts that someone
+  could mistake for real ones.
+
+## ADR-0015: any member may run a check
+
+- **Decision:** viewers can run interaction checks as well as read them.
+- **Alternatives:** caregivers and owners only.
+- **Why:** a check is derived data. It changes nothing a viewer can see, and without it a
+  viewer could be left reading a stale result.
+
+## ADR-0016: DDInter import maps names through RxNorm and skips what it cannot map
+
+- **Decision:** the `ddinter` import format resolves drug names to RxNorm ingredients and
+  imports a row only when both names match exactly one ingredient.
+- **Alternatives:** fuzzy matching; keeping names as keys.
+- **Why:** a wrong match would attach an interaction to the wrong medicine. Skipped rows
+  are reported so the owner can see the coverage lost.

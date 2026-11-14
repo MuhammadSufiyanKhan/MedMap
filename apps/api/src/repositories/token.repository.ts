@@ -94,7 +94,7 @@ export class EmailTokenRepository {
     const doc = await EmailTokenModel.findOneAndUpdate(
       { tokenHash: tokenHash, purpose, usedAt: null, expiresAt: { $gt: now } },
       { $set: { usedAt: now } },
-      { new: true },
+      { returnDocument: 'after' },
     ).lean<EmailTokenDoc>();
     return doc ? toEmailToken(doc) : null;
   }

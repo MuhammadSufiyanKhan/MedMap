@@ -45,6 +45,12 @@ Built so far:
   email verification, password reset, lockout after repeated failures.
 - Profiles with optimistic concurrency (ETag and If-Match) and idempotent creation.
 - Caregiver sharing through the API: invites, roles (owner, caregiver, viewer), audit log.
+- Medicines per profile, with name matching through RxNorm (cached) and an invented demo
+  catalogue that is used only with the demo dataset.
+- Interaction engine: every pair of active medicines is looked up at ingredient level in
+  the active dataset. Results are ranked by severity; medicines that could not be checked
+  are listed with the reason.
+- Dataset tooling: demo seed, CSV import with a licence gate, and a production release gate.
 
 ## Tech stack
 
@@ -92,6 +98,14 @@ cp .env.example .env
 
 ```bash
 docker compose up -d mongo
+```
+
+```bash
+npm run migrate
+```
+
+```bash
+npm run seed:demo
 ```
 
 ```bash
@@ -194,12 +208,13 @@ the interactive docs are at <http://localhost:4000/api/docs>; the generated docu
 
 CI runs lint, formatting, typecheck, unit and integration tests with coverage thresholds,
 build, an OpenAPI drift check, `npm audit` for production dependencies, docs checks and a
-secret scan. All must be green before a merge.
+secret scan. All must be green before a merge. [docs/TESTING.md](docs/TESTING.md) explains
+each kind of test.
 
 ## Deployment
 
 Planned targets are Vercel (web), Render (API) and MongoDB Atlas. Nothing is deployed yet.
-See [docs/PLAN.md](docs/PLAN.md).
+See [docs/PLAN.md](docs/PLAN.md) and [docs/RUNBOOK.md](docs/RUNBOOK.md).
 
 ## Contributing and security
 
@@ -216,7 +231,6 @@ No real interaction dataset is bundled. See [docs/DATA_SOURCES.md](docs/DATA_SOU
 
 ## Roadmap
 
-Planned, not built yet: medicines and name lookup (M2),
-interaction engine and demo dataset (M3), results list and graph (M4), label photos (M5),
+Planned, not built yet: the web interface with the results list and graph (M4), label photos (M5),
 caregiver sharing, export and delete (M6), hardening (M7), deployment (M8).
 After v1: dose reminders, loose-pill identification, EHR integration, native apps.

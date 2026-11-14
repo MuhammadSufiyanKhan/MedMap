@@ -1,4 +1,5 @@
 import { randomBytes } from 'node:crypto';
+import { readFileSync } from 'node:fs';
 import type { Express } from 'express';
 import request from 'supertest';
 import { afterAll, beforeAll } from 'vitest';
@@ -6,12 +7,14 @@ import type { AuthResponse } from '@medmap/shared';
 import { createContainer } from '../../src/container.js';
 import type { ContainerOverrides } from '../../src/container.js';
 import { MemoryEmailAdapter } from '../../src/integrations/email/email.js';
+import { sharedFixturePath } from '../../src/integrations/rxnorm/demo-normalizer.js';
 import {
   connectDatabase,
   disconnectDatabase,
   dropTestDatabase,
   ensureIndexes,
 } from '../../src/repositories/db.js';
+import type { DatasetService, ImportPair } from '../../src/services/dataset.service.js';
 import type { AnyRouteSpec } from '../../src/utils/http.js';
 import { createLogger } from '../../src/utils/logger.js';
 import { testConfig } from './config.js';
@@ -19,6 +22,9 @@ import { testConfig } from './config.js';
 export interface TestContext {
   app: Express;
   routes: AnyRouteSpec[];
+  datasets: DatasetService;
+  /** Connection string of this file's throwaway database. */
+  mongoUri: string;
   email: MemoryEmailAdapter;
   /** Moves the application clock forward. */
   advance(ms: number): void;
@@ -48,6 +54,8 @@ export function setupTestApp(
   const ctx: TestContext = {
     app: undefined as unknown as Express,
     routes: [],
+    datasets: undefined as unknown as DatasetService,
+    mongoUri: '',
     email,
     advance(ms) {
       offset += ms;
@@ -74,6 +82,8 @@ export function setupTestApp(
     });
     ctx.app = container.app;
     ctx.routes = container.routes;
+    ctx.datasets = container.datasets;
+    ctx.mongoUri = uri;
   });
 
   afterAll(async () => {
@@ -168,4 +178,40 @@ export async function shareProfile(
   if (accept.status !== 201) {
     throw new Error(`accept failed: ${String(accept.status)}`);
   }
+}
+
+/** Imports the made-up demo dataset and makes it active. */
+export async function seedDemoDataset(ctx: TestContext): Promise<void> {
+  const fixture = JSON.parse(readFileSync(sharedFixturePath('demo-interactions.json'), 'utf8')) as {
+    name: string;
+    version: string;
+    pairs: ImportPair[];
+  };
+  await ctx.datasets.importDataset(
+    {
+      name: fixture.name,
+      version: fixture.version,
+      kind: 'demo',
+      licenceStatus: 'not-applicable',
+      activate: true,
+    },
+    fixture.pairs,
+  );
+}
+
+/** Adds a medicine and returns its id and ETag. */
+export async function addMedication(
+  app: Express,
+  user: TestUser,
+  profileId: string,
+  body: Record<string, unknown>,
+): Promise<{ id: string; etag: string }> {
+  const res = await request(app)
+    .post(`/api/v1/profiles/${profileId}/medications`)
+    .set(user.auth)
+    .send(body);
+  if (res.status !== 201) {
+    throw new Error(`add medication failed: ${String(res.status)} ${JSON.stringify(res.body)}`);
+  }
+  return { id: (res.body as { id: string }).id, etag: res.headers.etag ?? '' };
 }
