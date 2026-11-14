@@ -80,3 +80,7 @@
     display: none !important;
   }
 }
+
+/* Severity classes are built from the severity name at run time, so list them for Tailwind. */
+@source inline("{border,bg,text}-severity-{serious,moderate,minor}");
+@source inline("bg-severity-{serious,moderate,minor}-soft");
